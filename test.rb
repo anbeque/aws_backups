@@ -106,8 +106,6 @@ end
 
 @ec2   = RightAws::Ec2.new(@aws_key,@aws_secret)
 
-# pp @ec2.describe_instances
-
 vols = []
 #vols += @ec2.describe_volumes(:filters => { 'tag-key' => 'backup:enabled' })
 #vols += @ec2.describe_volumes(:filters => { 'volume-id' => 'vol-63d1f029' })
@@ -116,25 +114,6 @@ vols = YAML.load_file("fixtures/vols.yaml")
 vols.each do |v|
   obj = Backup.from_ec2(v)
   obj.parse_ec2_snaps(YAML.load_file("fixtures/snaps.yaml")) 
-#  puts obj.to_yaml
-
-#  hash_list = []
-#  a = obj.snaps.select do |s|
-#    #hash = s.time.strftime("%Y")
-#    #hash = s.time.strftime("%Y%m")
-#    hash = s.time.strftime("%G%V")
-#    #hash = s.time.strftime("%Y%m%d")
-#    #hash = s.time.strftime("%Y%m%d%H")
-#    #hash = s.time.strftime("%Y%m%d%H%M%S")
-#    hash_list.index(hash) ? false : hash_list << hash
-#  end
-#  pp a
-#  pp a[0..(obj.weekly)]
-
-#   [:yearly, :monthly, :weekly, :daily, :hourly, :minutely].each do |sym|
-#     puts "\nList of #{sym}"
-#     pp obj.list_snaps(sym)
-#   end
-   obj.prune_snaps!
+  obj.prune_snaps!
 end
 
