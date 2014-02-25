@@ -118,7 +118,12 @@ class Backup
         save_ids << s.id unless save_ids.index(s.id)
       end
     end
-    to_be_pruned = self.snaps.select { |s| s.status != "pending" }
+    self.snaps.each do |s|
+      if s.status != "completed" && (Time.now.utc - s.time) <= (60*60*24*14)
+        save_ids << s.id unless save_ids.index(s.id)
+      end
+    end
+    to_be_pruned = self.snaps
     to_be_pruned.reject! { |s| save_ids.index(s.id) }
     puts "To be pruned:"
     pp to_be_pruned
