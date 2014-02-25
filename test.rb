@@ -34,6 +34,7 @@ class Backup
   attr_accessor :id, :lineage, :max_snapshots, :enabled, :snaps
   attr_accessor :minutely, :hourly, :daily, :weekly, :monthly, :yearly
   attr_accessor :minutely_hash, :hourly_hash, :daily_hash, :weekly_hash, :monthly_hash, :yearly_hash
+  attr_reader   :now
 
   def initialize(vol_id)
     @id = vol_id
@@ -52,6 +53,7 @@ class Backup
     @yearly = 2
     @yearly_hash = "%Y"
     @snaps = []
+    @now = Time.now.utc
   end
 
   def self.from_ec2(vol_hash)
@@ -119,7 +121,7 @@ class Backup
       end
     end
     self.snaps.each do |s|
-      if s.status != "completed" && (Time.now.utc - s.time) <= (60*60*24*14)
+      if s.status != "completed" && (self.now - s.time) <= (60*60*24*14)
         save_ids << s.id unless save_ids.index(s.id)
       end
     end
