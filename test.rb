@@ -6,7 +6,7 @@ require 'yaml'
 require './creds.rb'
 
 class Snap
-  attr_accessor :id, :time 
+  attr_accessor :id, :time, :status
 
   def initialize(snap_id)
     @id = snap_id
@@ -18,6 +18,9 @@ class Snap
       o = self.new(snap_id)
       if t = snap_hash[:aws_started_at]
         o.time = Time.parse(t)
+      end
+      if v = snap_hash[:aws_status]
+        o.status = v
       end
       o
     else
@@ -48,6 +51,7 @@ class Backup
     @monthly_hash = "%Y%m"
     @yearly = 2
     @yearly_hash = "%Y"
+    @snaps = []
   end
 
   def self.from_ec2(vol_hash)
@@ -75,6 +79,18 @@ class Backup
      self.sort_snaps!
   end
 
+  def snaps_pending
+    self.snaps.select { |s| s.status == "pending" }
+  end
+
+  def snaps_completed
+    self.snaps.select { |s| s.status == "completed" }
+  end
+
+  def snaps_error
+    self.snaps.select { |s| s.status == "error" }
+  end
+
   def sort_snaps!
     snaps.sort! {|x,y| y.time <=> x.time }
   end
@@ -88,7 +104,7 @@ class Backup
 
   def list_snaps(type)
     hash_list = []
-    a = self.snaps.select do |s|
+    a = self.snaps_completed.select do |s|
       hash = s.time.strftime(self.send("#{type}_hash".to_sym))
       hash_list.index(hash) ? false : hash_list << hash
     end
@@ -102,7 +118,7 @@ class Backup
         save_ids << s.id unless save_ids.index(s.id)
       end
     end
-    to_be_pruned = self.snaps.dup
+    to_be_pruned = self.snaps.select { |s| s.status != "pending" }
     to_be_pruned.reject! { |s| save_ids.index(s.id) }
     puts "To be pruned:"
     pp to_be_pruned
@@ -123,5 +139,6 @@ vols.each do |v|
   obj.parse_ec2_snaps(YAML.load_file("fixtures/snaps.yaml")) 
   obj.prune_snaps!
   pp obj.schedule_types
+  pp obj.snaps_pending
 end
 
