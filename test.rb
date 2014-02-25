@@ -30,7 +30,7 @@ class Backup
 
   attr_accessor :id, :lineage, :max_snapshots, :enabled, :snaps
   attr_accessor :minutely, :hourly, :daily, :weekly, :monthly, :yearly
-  attr_reader :minutely_hash, :hourly_hash, :daily_hash, :weekly_hash, :monthly_hash, :yearly_hash
+  attr_accessor :minutely_hash, :hourly_hash, :daily_hash, :weekly_hash, :monthly_hash, :yearly_hash
 
   def initialize(vol_id)
     @id = vol_id
@@ -79,6 +79,13 @@ class Backup
     snaps.sort! {|x,y| y.time <=> x.time }
   end
 
+  def schedule_types
+    prefix = /^@(\w+)_hash/
+    instance_variables.select { |v| v.to_s.match(prefix) }.collect do |v|
+      v.to_s.sub(prefix,'\1').to_sym
+    end
+  end
+
   def list_snaps(type)
     hash_list = []
     a = self.snaps.select do |s|
@@ -90,7 +97,7 @@ class Backup
 
   def prune_snaps!
     save_ids = []
-    [:yearly, :monthly, :weekly, :daily, :hourly, :minutely].each do |sym|
+    self.schedule_types.each do |sym|
       self.list_snaps(sym).each do |s|
         save_ids << s.id unless save_ids.index(s.id)
       end
@@ -115,5 +122,6 @@ vols.each do |v|
   obj = Backup.from_ec2(v)
   obj.parse_ec2_snaps(YAML.load_file("fixtures/snaps.yaml")) 
   obj.prune_snaps!
+  pp obj.schedule_types
 end
 
