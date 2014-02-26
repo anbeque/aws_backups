@@ -27,17 +27,28 @@ class Snap
       nil
     end
   end
+
+  def delete(context=nil)
+    if context
+      puts "Deleting snapshot: #{self.id}"
+      #context.delete_snapshot(self.id)
+    else
+      puts "Deleting snapshot (NOOP): #{self.id}"
+    end
+  end
+
 end
 
 class Backup
 
-  attr_accessor :id, :lineage, :max_snapshots, :enabled, :snaps
+  attr_accessor :id, :lineage, :max_snapshots, :enabled, :snaps, :api
   attr_accessor :minutely, :hourly, :daily, :weekly, :monthly, :yearly
   attr_accessor :minutely_hash, :hourly_hash, :daily_hash, :weekly_hash, :monthly_hash, :yearly_hash
   attr_reader   :now
 
   def initialize(vol_id)
     @id = vol_id
+    @api = nil
     @max_snapshots = 10
     @minutely = 0
     @minutely_hash = "%Y%m%d%H%M"
@@ -133,9 +144,9 @@ class Backup
     end
     to_be_pruned = self.snaps.dup
     to_be_pruned.reject! { |s| save_ids.index(s.id) }
-    puts "To be pruned:"
-    pp to_be_pruned
-    pp to_be_pruned.length
+    to_be_pruned.each do |s|
+      s.delete(@api)
+    end
   end
 
   def snap_required?
@@ -163,6 +174,23 @@ class Backup
     retval
   end
 
+  def backup
+    self.create_snapshot if snap_required?
+  end
+
+  def create_snapshot(context = @api)
+    if context
+      puts "Creating snapshot: #{self.id}"
+      if tags = context.create_snapshot(self.id)
+        if s = Snap.from_ec2(tags)
+          self.snaps.unshift(s)
+        end
+      end
+    else
+      puts "Creating snapshot (NOOP): #{self.id}"
+    end
+  end
+
 end
 
 @ec2   = RightAws::Ec2.new(@aws_key,@aws_secret)
@@ -174,11 +202,9 @@ vols = []
 vols = YAML.load_file("fixtures/vols.yaml")
 vols.each do |v|
   obj = Backup.from_ec2(v)
+  #obj.api = @ec2
   obj.parse_ec2_snaps(YAML.load_file("fixtures/snaps.yaml")) 
+  obj.backup
   obj.prune_snaps!
-  pp obj.schedule_types
-  pp obj.snaps_pending
-  puts "Required:"
-  pp obj.snap_required?
 end
 
