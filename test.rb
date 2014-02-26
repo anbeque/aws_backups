@@ -52,8 +52,7 @@ class Backup
     @max_snapshots = 10
     @minutely = 0
     @minutely_hash = "%Y%m%d%H%M"
-    #@hourly = 60
-    @hourly = 55
+    @hourly = 60
     @hourly_hash = "%Y%m%d%H"
     @daily = 14
     @daily_hash = "%Y%m%d"
@@ -206,5 +205,6 @@ vols.each do |v|
   obj.parse_ec2_snaps(YAML.load_file("fixtures/snaps.yaml")) 
   obj.backup
   obj.prune_snaps!
+  pp obj.latest
 end
 
