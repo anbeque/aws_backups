@@ -113,6 +113,12 @@ class Backup
     a[0..(self.send(type.to_sym))]
   end
 
+  def latest
+    self.snaps.find do |s|
+      s.status == "completed" || (s.status == "pending" && (self.now - s.time) <= (60*60*4))
+    end
+  end
+
   def prune_snaps!
     save_ids = []
     self.schedule_types.each do |sym|
@@ -132,6 +138,31 @@ class Backup
     pp to_be_pruned.length
   end
 
+  def snap_required?
+    retval = false
+
+    # hash all snaps for each non-zero schedule type, uniq the list,
+    #   then check if the current time adds an additional hash to the list
+    hash_list = []
+    self.snaps.each do |s|
+      if s.status == "completed" || (s.status == "pending" && (self.now - s.time) <= (60*60*4))
+        self.schedule_types.each do |type|
+          hash = s.time.strftime(self.send("#{type}_hash".to_sym))
+          hash_list << hash unless hash_list.index(hash)
+        end
+      end
+    end
+    self.schedule_types.each do |type|
+      next if self.send(type).to_i == 0
+      hash = self.now.strftime(self.send("#{type}_hash".to_sym))
+      unless hash_list.index(hash)
+        #puts "Bingo, need #{type}: #{hash}"
+        retval = true
+      end
+    end
+    retval
+  end
+
 end
 
 @ec2   = RightAws::Ec2.new(@aws_key,@aws_secret)
@@ -147,5 +178,7 @@ vols.each do |v|
   obj.prune_snaps!
   pp obj.schedule_types
   pp obj.snaps_pending
+  puts "Required:"
+  pp obj.snap_required?
 end
 
