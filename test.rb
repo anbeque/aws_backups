@@ -125,7 +125,7 @@ class Backup
         save_ids << s.id unless save_ids.index(s.id)
       end
     end
-    to_be_pruned = self.snaps
+    to_be_pruned = self.snaps.dup
     to_be_pruned.reject! { |s| save_ids.index(s.id) }
     puts "To be pruned:"
     pp to_be_pruned
