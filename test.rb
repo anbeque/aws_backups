@@ -120,7 +120,7 @@ class Backup
       hash = s.time.strftime(self.send("#{type}_hash".to_sym))
       hash_list.index(hash) ? false : hash_list << hash
     end
-    a[0..(self.send(type.to_sym))]
+    a[0..(self.send(type.to_sym).to_i)]
   end
 
   def latest
