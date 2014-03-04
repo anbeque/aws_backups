@@ -1,0 +1,14 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    rake (10.1.1)
+    right_aws (3.1.0)
+      right_http_connection (>= 1.2.5)
+    right_http_connection (1.4.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rake
+  right_aws
