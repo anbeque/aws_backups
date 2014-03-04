@@ -1,2 +1,5 @@
 /creds.rb
 *.good*
+/.bundle
+/bin
+/vendor/bundle
