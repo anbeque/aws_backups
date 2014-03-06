@@ -197,7 +197,7 @@ end
 @ec2   = RightAws::Ec2.new(@aws_key,@aws_secret)
 
 vols = []
-vols += @ec2.describe_volumes(:filters => { 'tag-key' => 'backup:enabled' })
+vols += @ec2.describe_volumes(:filters => { 'tag:backup:enabled' => '1' })
 #vols += @ec2.describe_volumes(:filters => { 'volume-id' => 'vol-63d1f029' })
 
 #vols = YAML.load_file("fixtures/vols.yaml")
