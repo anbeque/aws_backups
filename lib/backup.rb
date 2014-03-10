@@ -39,12 +39,6 @@ class Backup
   attr_accessor :minutely_hash, :hourly_hash, :daily_hash, :weekly_hash, :monthly_hash, :yearly_hash
   attr_reader   :now
 
-#  # These object attributes should all be coerced into integers
-#  [:minutely, :hourly, :daily, :weekly, :monthly, :yearly].each do |n|
-#    define_method(n) {instance_variable_get("@#{n}")}
-#    define_method("#{n}=") {|arg| instance_variable_set("@#{n}", arg.to_i)}
-#  end
-
   def initialize(vol_id)
     @id = vol_id
     @api = nil
@@ -73,8 +67,6 @@ class Backup
       vol_hash[:tags].each do |k,v|
         #puts "HERE: #{k}, #{v}"
         begin
-#          # Coerce integer look alikes into integers
-#          v = v.to_i if v == v.to_i
           k.match(/backup:(\w+)/) do |m,n|
             o.send("#{$1}=".to_sym, v) if o.respond_to?("#{$1}=".to_sym)
           end
