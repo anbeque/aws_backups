@@ -24,7 +24,7 @@ class Snap
   def delete(context=nil)
     if context
       puts "Deleting snapshot: #{self.id}"
-      #context.delete_snapshot(self.id)
+      context.delete_snapshot(self.id)
     else
       puts "Deleting snapshot (NOOP): #{self.id}"
     end
