@@ -1,5 +1,6 @@
 /creds.rb
 *.good*
 /.bundle
-/bin
+/bin/*
+!/bin/backup.rb
 /vendor/bundle
