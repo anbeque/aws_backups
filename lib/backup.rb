@@ -1,14 +1,20 @@
+require 'logger'
+
 class Snap
   attr_accessor :id, :time, :status
+  attr_accessor :logger, :params
 
-  def initialize(snap_id)
+  def initialize(snap_id, params={})
+    @params = params
     @id = snap_id
+    @logger = @params[:logger]
+    @logger = Logger.new(STDOUT)   if !@logger
   end
 
-  def self.from_ec2(snap_hash)
+  def self.from_ec2(snap_hash, params={})
     snap_id = snap_hash[:aws_id]
     if (snap_id.match(/^snap-/)) then
-      o = self.new(snap_id)
+      o = self.new(snap_id, params)
       if t = snap_hash[:aws_started_at]
         o.time = Time.parse(t)
       end
@@ -23,10 +29,10 @@ class Snap
 
   def delete(context=nil)
     if context
-      puts "Deleting snapshot: #{self.id}"
+      @logger.info "Deleting snapshot: #{self.id}"
       context.delete_snapshot(self.id)
     else
-      puts "Deleting snapshot (NOOP): #{self.id}"
+      @logger.info "Deleting snapshot (NOOP): #{self.id}"
     end
   end
 
@@ -37,9 +43,11 @@ class Backup
   attr_accessor :id, :lineage, :max_snapshots, :enabled, :snaps, :api
   attr_accessor :minutely, :hourly, :daily, :weekly, :monthly, :yearly
   attr_accessor :minutely_hash, :hourly_hash, :daily_hash, :weekly_hash, :monthly_hash, :yearly_hash
+  attr_accessor :logger, :params
   attr_reader   :now
 
-  def initialize(vol_id)
+  def initialize(vol_id, params={})
+    @params = params
     @id = vol_id
     @api = nil
     @max_snapshots = 10
@@ -57,13 +65,15 @@ class Backup
     @yearly_hash = "%Y"
     @snaps = []
     @now = Time.now.utc
+    @logger = @params[:logger]
+    @logger = Logger.new(STDOUT)   if !@logger
   end
 
-  def self.from_ec2(vol_hash)
+  def self.from_ec2(vol_hash, params={})
     #puts "Creating class from:\n #{vol_hash.inspect}"
     vol_id = vol_hash[:aws_id]
     if (vol_id.match(/^vol-/)) then
-      o = self.new(vol_id)
+      o = self.new(vol_id, params)
       vol_hash[:tags].each do |k,v|
         #puts "HERE: #{k}, #{v}"
         begin
@@ -80,7 +90,7 @@ class Backup
   end
 
   def parse_ec2_snaps(snap_array)
-     self.snaps = snap_array.collect { |s| Snap.from_ec2(s) }
+     self.snaps = snap_array.collect { |s| Snap.from_ec2(s,:logger => @logger) }
      self.sort_snaps!
   end
 
@@ -172,14 +182,14 @@ class Backup
 
   def create_snapshot(context = @api)
     if context
-      puts "Creating snapshot: #{self.id}"
+      @logger.info "Creating snapshot: #{self.id}"
       if tags = context.create_snapshot(self.id)
-        if s = Snap.from_ec2(tags)
+        if s = Snap.from_ec2(tags, :logger => @logger)
           self.snaps.unshift(s)
         end
       end
     else
-      puts "Creating snapshot (NOOP): #{self.id}"
+      @logger.info "Creating snapshot (NOOP): #{self.id}"
     end
   end
 
