@@ -68,7 +68,7 @@ class Backup
         #puts "HERE: #{k}, #{v}"
         begin
           k.match(/backup:(\w+)/) do |m,n|
-            o.send("#{$1}=".to_sym, v)
+            o.send("#{$1}=".to_sym, v) if o.respond_to?("#{$1}=".to_sym)
           end
         rescue
         end
