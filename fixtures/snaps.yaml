@@ -728,12 +728,3 @@
   :aws_owner: '663255216447'
   :aws_volume_size: 50
   :aws_description: ''
-- :tags: {}
-  :aws_id: snap-12345678
-  :aws_volume_id: vol-63d1f029
-  :aws_status: pending
-  :aws_started_at: '2014-02-03T10:10:40.000Z'
-  :aws_progress: 80%
-  :aws_owner: '663255216447'
-  :aws_volume_size: 50
-  :aws_description: ''
