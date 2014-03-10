@@ -1,21 +1,5 @@
 require 'spec_helper'
 
-# expect(double).to receive(:msg).with(1, kind_of(Numeric), "b")
-# expect(double).to receive(:msg).with("A", 1, 3)
-# allow(book).to receive(:title).and_return("The RSpec Book")
-# book = double("book", :title => "The RSpec Book")
-# @ec2.describe_volumes(:filters => { 'tag:backup:enabled' => '1' })
-# @ec2.describe_snapshots(:filters => { 'volume-id' => obj.id })
-
-# @ec2 = instance_double("RightAws::Ec2", {
-#  :describe_volumes   => YAML.load_file("./fixtures/vols.yaml"),
-#  :describe_snapshots => YAML.load_file("./fixtures/snaps.yaml")
-#})
-#  let(:@ec2) { instance_double("RightAws::Ec2", {
-#    :describe_volumes   => YAML.load_file("./fixtures/vols.yaml"),
-#    :describe_snapshots => YAML.load_file("./fixtures/snaps.yaml")
-#  })}
-
 describe Backup do
   context "New backup required" do
     include RSpec::Mocks::ExampleMethods
