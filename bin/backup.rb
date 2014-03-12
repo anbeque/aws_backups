@@ -4,10 +4,9 @@ require 'rubygems'
 require 'bundler/setup'
 require 'right_aws'
 require 'pp'
-require 'yaml'
 require 'logger'
-require './creds.rb'
-require './lib/backup.rb'
+require_relative '../lib/creds'
+require_relative '../lib/backup'
 
 @logger = Logger.new(STDOUT)   if !@logger
 @ec2   = RightAws::Ec2.new(@aws_key,@aws_secret, :logger => @logger)

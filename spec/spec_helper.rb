@@ -1,9 +1,8 @@
-$LOAD_PATH.unshift("lib")
-require 'backup'
 require 'right_aws'
 require 'logger'
 require 'yaml'
 require 'rspec/mocks'
+require_relative '../lib/backup'
 
 #RSpec.configure do |config|
 #  config.mock_with :rspec do |mocks|

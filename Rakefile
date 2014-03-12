@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'rspec/core/rake_task'
-require 'yaml'
 
 RSpec::Core::RakeTask.new(:test, :tag) do |t, task_args|
   t.rspec_opts = []
