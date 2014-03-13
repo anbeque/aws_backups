@@ -3,14 +3,15 @@ require 'spec_helper'
 describe Backup do
   context "New backup required" do
     include RSpec::Mocks::ExampleMethods
-    @logger = Logger.new(STDOUT)   if !@logger
+    $logger = Logger.new(STDOUT)   if !$logger
+    $logger.level = Logger::WARN
     let(:vols)  { YAML.load_file("./fixtures/vols.yaml") }
     let(:snaps) { YAML.load_file("./fixtures/snaps.yaml") }
     let(:new_snap) { YAML.load_file("./fixtures/pending_snap.yaml") }
-    let(:ec2) { RightAws::Ec2.new("invalid_key","invalid_secret", :logger => @logger) }
+    let(:ec2) { RightAws::Ec2.new("invalid_key","invalid_secret", :logger => $logger) }
     let(:backup) do
       Time.stub(:now).and_return(Time.parse("2014-02-03T10:15:00.000Z"))
-      obj = Backup.from_ec2(vols.first, :logger => @logger)
+      obj = Backup.from_ec2(vols.first, :logger => $logger)
       obj.parse_ec2_snaps(snaps)
       obj.api = ec2
       obj
