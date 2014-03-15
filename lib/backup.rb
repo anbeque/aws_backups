@@ -54,6 +54,7 @@ class Backup
     @params = params
     @id = vol_id
     @api = nil
+    @enabled = false
     @max_snapshots = 10
     @minutely = 0
     @minutely_hash = "%Y%m%d%H%M"
@@ -137,6 +138,7 @@ class Backup
   end
 
   def prune_snaps!
+    return [] unless self.enabled
     save_ids = []
     self.schedule_types.each do |sym|
       self.list_snaps(sym).each do |s|
@@ -156,6 +158,7 @@ class Backup
   end
 
   def snap_required?
+    return false unless self.enabled
     retval = false
 
     # hash all snaps for each non-zero schedule type, uniq the list,

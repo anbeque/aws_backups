@@ -290,9 +290,19 @@ describe Backup do
       end
     end
 
+    it "#snap_required?" do
+      backup.snap_required?.should be_false
+    end
+
     it "#backup shot not fire when disabled" do
       ec2.should_receive(:create_snapshot).exactly(0).times
       backup.backup
+    end
+
+    it "#prune_snaps! should not fire when disabled" do
+      ec2.should_receive(:delete_snapshot).exactly(0).times
+      backup.hourly = 55
+      backup.prune_snaps!
     end
 
   end

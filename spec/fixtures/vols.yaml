@@ -2,6 +2,7 @@
 - :tags:
     Name: JENKINS HOME
     backup:hourly: "60"
+    backup:enabled: "1"
   :aws_id: vol-63d1f029
   :aws_size: 50
   :snapshot_id: snap-c5fc43c8
