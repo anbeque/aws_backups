@@ -290,6 +290,30 @@ describe Backup do
       end
     end
 
+    it "#minutely" do
+      [nil, "0", "", " ", "FaLse", "nO", "n", "F" ].each do |str|
+        backup.minutely = str
+        backup.minutely.should eq(0)
+      end
+      ["1", "1.234", " 1 " ].each do |str|
+        backup.minutely = str
+        backup.minutely.should eq(1)
+      end
+    end
+
+    [:minutely, :hourly, :daily, :weekly, :monthly, :yearly].each do |type|
+      it "##{type} should coerce to integer" do
+        [nil, "0", "", " ", "FaLse", "nO", "n", "F" ].each do |str|
+          backup.send("#{type.to_s}=".to_sym, str)
+          backup.send(type).should eq(0), "expected #{str.inspect} to be 0"
+        end
+        ["1", "1.234", " 1 " ].each do |str|
+          backup.send("#{type.to_s}=".to_sym, str)
+          backup.send(type).should eq(1), "expected #{str.inspect} to be 1"
+        end
+      end
+    end
+
     it "#snap_required?" do
       backup.snap_required?.should be_false
     end
