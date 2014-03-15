@@ -1,4 +1,7 @@
 require 'logger'
+require_relative 'core_ext/object'
+require_relative 'core_ext/module'
+require_relative 'core_ext/string'
 
 class Snap
   attr_accessor :id, :time, :status
@@ -40,8 +43,9 @@ end
 
 class Backup
 
-  attr_accessor :id, :lineage, :max_snapshots, :enabled, :snaps, :api
-  attr_accessor :minutely, :hourly, :daily, :weekly, :monthly, :yearly
+  attr_accessor :id, :lineage, :max_snapshots, :snaps, :api
+  attr_accessor_bool :enabled
+  attr_accessor_i :minutely, :hourly, :daily, :weekly, :monthly, :yearly
   attr_accessor :minutely_hash, :hourly_hash, :daily_hash, :weekly_hash, :monthly_hash, :yearly_hash
   attr_accessor :logger, :params
   attr_reader   :now
