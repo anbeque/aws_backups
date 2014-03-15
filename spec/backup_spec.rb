@@ -56,7 +56,7 @@ describe Backup do
 
     it "#backup" do
       # Should only ever trigger backup once
-      ec2.should_receive(:create_snapshot).once.with("vol-63d1f029").and_return(new_snap)
+      backup.api.should_receive(:create_snapshot).once.with("vol-63d1f029").and_return(new_snap)
       backup.backup
       backup.latest.should respond_to(:time)
       backup.latest.time.to_s.should eq("2014-02-03 10:10:40 UTC")
@@ -64,10 +64,10 @@ describe Backup do
     end
 
     it "#prune_snaps!" do
-      ec2.should_receive(:delete_snapshot).once.with("snap-2039a337").and_return(true)
-      ec2.should_receive(:delete_snapshot).once.with("snap-d89803cf").and_return(true)
-      ec2.should_receive(:delete_snapshot).once.with("snap-d4bf21c3").and_return(true)
-      ec2.should_receive(:delete_snapshot).once.with("snap-f3fc63e4").and_return(true)
+      backup.api.should_receive(:delete_snapshot).once.with("snap-2039a337").and_return(true)
+      backup.api.should_receive(:delete_snapshot).once.with("snap-d89803cf").and_return(true)
+      backup.api.should_receive(:delete_snapshot).once.with("snap-d4bf21c3").and_return(true)
+      backup.api.should_receive(:delete_snapshot).once.with("snap-f3fc63e4").and_return(true)
       backup.hourly = 55
       backup.prune_snaps!
       backup.latest.should respond_to(:time)
@@ -75,7 +75,7 @@ describe Backup do
     end
 
     it "#snaps_pending" do
-      ec2.should_receive(:create_snapshot).once.with("vol-63d1f029").and_return(new_snap)
+      backup.api.should_receive(:create_snapshot).once.with("vol-63d1f029").and_return(new_snap)
       backup.backup
       backup.snaps_pending.collect {|s| s.id}.should include("snap-12345678")
       backup.snaps_pending.each do |s|
@@ -84,7 +84,7 @@ describe Backup do
     end
 
     it "#snaps_completed" do
-      ec2.should_receive(:create_snapshot).once.with("vol-63d1f029").and_return(new_snap)
+      backup.api.should_receive(:create_snapshot).once.with("vol-63d1f029").and_return(new_snap)
       backup.backup
       backup.snaps_pending.collect {|s| s.id}.should include("snap-12345678")
       backup.snaps_completed.collect {|s| s.id}.should_not include("snap-12345678")
@@ -95,7 +95,7 @@ describe Backup do
     end
 
     it "#snaps_error" do
-      ec2.should_receive(:create_snapshot).once.with("vol-63d1f029").and_return(new_snap)
+      backup.api.should_receive(:create_snapshot).once.with("vol-63d1f029").and_return(new_snap)
       backup.backup
       backup.snaps_completed.collect {|s| s.id}.should include("snap-58003a4f")
       backup.snaps_error.collect {|s| s.id}.should_not include("snap-58003a4f")
@@ -319,12 +319,12 @@ describe Backup do
     end
 
     it "#backup shot not fire when disabled" do
-      ec2.should_receive(:create_snapshot).exactly(0).times
+      backup.api.should_receive(:create_snapshot).exactly(0).times
       backup.backup
     end
 
     it "#prune_snaps! should not fire when disabled" do
-      ec2.should_receive(:delete_snapshot).exactly(0).times
+      backup.api.should_receive(:delete_snapshot).exactly(0).times
       backup.hourly = 55
       backup.prune_snaps!
     end
