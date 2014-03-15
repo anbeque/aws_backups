@@ -1,23 +1,24 @@
 require 'spec_helper'
 
 describe Backup do
+  include RSpec::Mocks::ExampleMethods
+  $logger = Logger.new(STDOUT)   if !$logger
+  $logger.level = Logger::WARN
+  let(:vols) {
+    YAML.load_file(File.join(File.dirname(__FILE__),'fixtures','vols.yaml'))
+  }
+  let(:snaps) {
+    YAML.load_file(File.join(File.dirname(__FILE__),'fixtures','snaps.yaml'))
+  }
+  let(:new_snap) {
+    YAML.load_file(File.join(
+      File.dirname(__FILE__),'fixtures','pending_snap.yaml'))
+  }
+  let(:ec2) {
+    RightAws::Ec2.new("invalid_key","invalid_secret", :logger => $logger)
+  }
+
   context "with snapshot required" do
-    include RSpec::Mocks::ExampleMethods
-    $logger = Logger.new(STDOUT)   if !$logger
-    $logger.level = Logger::WARN
-    let(:vols) {
-      YAML.load_file(File.join(File.dirname(__FILE__),'fixtures','vols.yaml'))
-     }
-    let(:snaps) {
-      YAML.load_file(File.join(File.dirname(__FILE__),'fixtures','snaps.yaml'))
-     }
-    let(:new_snap) {
-      YAML.load_file(File.join(
-        File.dirname(__FILE__),'fixtures','pending_snap.yaml'))
-     }
-    let(:ec2) {
-      RightAws::Ec2.new("invalid_key","invalid_secret", :logger => $logger)
-     }
     let(:backup) do
       Time.stub(:now).and_return(Time.parse("2014-02-03T10:15:00.000Z"))
       obj = Backup.from_ec2(vols.first, :logger => $logger)
