@@ -21,7 +21,5 @@ vols.each do |v|
   obj.api = nil
   obj.backup
   obj.prune_snaps!
-  puts "Current Latest:"
-  pp obj.latest
 end
 
