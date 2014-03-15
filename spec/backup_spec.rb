@@ -27,7 +27,7 @@ describe Backup do
       obj
     end
 
-    it "should contain the standard backup variables" do
+    it "should contain the default config variables" do
       backup.id.should eq("vol-63d1f029")
       backup.api.should_not be_nil
       backup.max_snapshots.to_i.should eq(10)
