@@ -271,4 +271,29 @@ describe Backup do
     end
 
   end
+
+  context "with enabled = 0" do
+    let(:backup) do
+      Time.stub(:now).and_return(Time.parse("2014-02-03T10:15:00.000Z"))
+      obj = Backup.from_ec2(vols.first, :logger => $logger)
+      obj.should_receive(:sort_snaps!).once.and_call_original
+      obj.parse_ec2_snaps(snaps)
+      obj.api = ec2
+      obj.enabled = "0"
+      obj
+    end
+
+    it "#enabled" do
+      [nil, false, "0", "", " ", "FaLse", "nO", "n", "F" ].each do |str|
+        backup.enabled = str
+        backup.enabled.should be_false
+      end
+    end
+
+    it "#backup shot not fire when disabled" do
+      ec2.should_receive(:create_snapshot).exactly(0).times
+      backup.backup
+    end
+
+  end
 end
