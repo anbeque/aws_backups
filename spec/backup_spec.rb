@@ -272,7 +272,7 @@ describe Backup do
 
   end
 
-  context "with enabled = 0" do
+  context "with backup:enabled = 0" do
     let(:backup) do
       Time.stub(:now).and_return(Time.parse("2014-02-03T10:15:00.000Z"))
       obj = Backup.from_ec2(vols.first, :logger => $logger)
