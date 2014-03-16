@@ -211,6 +211,8 @@ class Backup
       if tags = context.create_snapshot(self.id)
         if s = Snap.from_ec2(tags, :logger => @logger)
           self.snaps.unshift(s)
+          @logger.info "Tagging snapshot: #{s.id}"
+          context.create_tags(s.id, self.generate_snap_tags)
         end
       end
     else
