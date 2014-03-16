@@ -348,4 +348,38 @@ describe Backup do
     end
 
   end
+
+  context "with 6 months of random snaps" do
+    let(:backup) do
+      Time.stub(:now).and_return(Time.parse("2014-02-03T10:15:00.000Z"))
+      obj = Backup.from_ec2(vols.first, :logger => $logger)
+      obj.should_receive(:sort_snaps!).once.and_call_original
+      t0 = Time.parse("2014-02-03 09:10:38 UTC").utc
+      snap_list = [0]
+      r = Random.new(1234)
+      8000.times do |x|
+        snap_list.push(r.rand(3600 * 24 * 30 * 6))
+      end
+      snap_list.sort!.uniq!
+      snap_list.collect! do |x|
+        s = Snap.new(sprintf("%08x",x), :logger => $logger)
+        s.time = Time.at(t0.to_i - x).utc
+        s.status = "completed"
+        s
+      end
+      obj.snaps = snap_list
+      obj.sort_snaps!
+      obj.api = ec2
+      obj
+    end
+
+    it "#prune_snaps!" do
+      backup.api.should_receive(:delete_snapshot).at_least(7900).times.and_return(true)
+      backup.prune_snaps!
+      backup.latest.should respond_to(:time)
+      backup.latest.time.to_s.should eq("2014-02-03 09:10:38 UTC")
+      backup.snaps.should have(81).items
+    end
+
+  end
 end
