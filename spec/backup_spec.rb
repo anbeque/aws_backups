@@ -318,7 +318,7 @@ describe Backup do
       backup.snap_required?.should be_false
     end
 
-    it "#backup shot not fire when disabled" do
+    it "#backup should not fire when disabled" do
       backup.api.should_receive(:create_snapshot).exactly(0).times
       backup.backup
     end
@@ -327,6 +327,19 @@ describe Backup do
       backup.api.should_receive(:delete_snapshot).exactly(0).times
       backup.hourly = 55
       backup.prune_snaps!
+    end
+
+    it "#generate_snap_tags" do
+      #Time.stub(:now).and_return(Time.parse("2014-02-03T10:15:00.000Z"))
+      tags = backup.generate_snap_tags
+      tags.should include( "backup:lineage"     => "releng-jenkins-master-1")
+      tags.should include( "backup:device"      => "/dev/sdf")
+      tags.should include( "backup:position"    => "1")
+      tags.should include( "backup:volume_name" => "JENKINS HOME")
+      tags.should include( "backup:stripe_id"   => "20140203101500")
+      tags.should include( "backup:timestamp"   => "1391422500")
+      tags.should include( "backup:worker" )
+      tags.should include( "backup:worker_pid" )
     end
 
   end

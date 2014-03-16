@@ -1,6 +1,8 @@
 ---
 - :tags:
     Name: JENKINS HOME
+    backup:lineage: "releng-jenkins-master-1"
+    backup:device: "/dev/sdf"
     backup:hourly: "60"
     backup:enabled: "1"
   :aws_id: vol-63d1f029

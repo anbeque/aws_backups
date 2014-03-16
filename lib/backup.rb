@@ -43,8 +43,9 @@ end
 
 class Backup
 
-  attr_accessor :id, :lineage, :max_snapshots, :snaps, :api
+  attr_accessor :id, :lineage, :max_snapshots, :snaps, :api, :device, :name
   attr_accessor_bool :enabled
+  attr_accessor_i :position
   attr_accessor_i :minutely, :hourly, :daily, :weekly, :monthly, :yearly
   attr_accessor :minutely_hash, :hourly_hash, :daily_hash, :weekly_hash, :monthly_hash, :yearly_hash
   attr_accessor :logger, :params
@@ -54,6 +55,9 @@ class Backup
     @params = params
     @id = vol_id
     @api = nil
+    @name = nil
+    @device = nil
+    @position = 1
     @enabled = false
     @max_snapshots = 10
     @minutely = 0
@@ -82,6 +86,7 @@ class Backup
       vol_hash[:tags].each do |k,v|
         #puts "HERE: #{k}, #{v}"
         begin
+          o.name = v if k == "Name"
           k.match(/backup:(\w+)/) do |m,n|
             o.send("#{$1}=".to_sym, v) if o.respond_to?("#{$1}=".to_sym)
           end
@@ -185,6 +190,19 @@ class Backup
 
   def backup
     self.create_snapshot if snap_required?
+  end
+
+  def generate_snap_tags
+    {
+        "backup:lineage"     => "#{self.lineage}",
+        "backup:device"      => "#{self.device}",
+        "backup:position"    => "#{self.position}",
+        "backup:volume_name" => "#{self.name}",
+        "backup:stripe_id"   => "#{self.now.strftime("%Y%m%d%H%M%S")}",
+        "backup:timestamp"   => "#{self.now.to_i}",
+        "backup:worker"      => `hostname -s`.chomp,
+        "backup:worker_pid"  => "#{$$}"
+    }
   end
 
   def create_snapshot(context = @api)
