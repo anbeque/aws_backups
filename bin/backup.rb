@@ -3,7 +3,6 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'right_aws'
-require 'pp'
 require 'logger'
 require_relative '../lib/creds'
 require_relative '../lib/backup'
@@ -11,8 +10,7 @@ require_relative '../lib/backup'
 @logger = Logger.new(STDOUT)   if !@logger
 @ec2   = RightAws::Ec2.new(@aws_key,@aws_secret, :logger => @logger)
 
-vols = []
-vols += @ec2.describe_volumes(:filters => { 'tag:backup:enabled' => '1' })
+vols = @ec2.describe_volumes(:filters => { 'tag:backup:enabled' => '1' })
 
 vols.each do |v|
   obj = Backup.from_ec2(v, :logger => @logger)
