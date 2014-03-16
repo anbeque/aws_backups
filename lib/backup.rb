@@ -158,7 +158,7 @@ class Backup
     to_be_pruned = self.snaps.dup
     to_be_pruned.reject! { |s| save_ids.index(s.id) }
     to_be_pruned.each do |s|
-      s.delete(@api)
+      snaps.delete(s) if s.delete(@api)
     end
   end
 
