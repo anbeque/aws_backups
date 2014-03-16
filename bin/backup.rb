@@ -16,7 +16,6 @@ vols.each do |v|
   obj = Backup.from_ec2(v, :logger => @logger)
   obj.api = @ec2
   obj.parse_ec2_snaps(@ec2.describe_snapshots(:filters => { 'volume-id' => obj.id }))
-  obj.api = nil
   obj.backup
   obj.prune_snaps!
 end
